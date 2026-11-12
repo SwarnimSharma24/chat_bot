@@ -1,49 +1,373 @@
 [
-  "Python is a high-level, interpreted programming language known for its simple syntax and readability.",
-  "Python is commonly used for web development, automation data analysis, machine learning, artificial intelligence and scripting.",
-  "Python variables are names used to refer to values. For example, age = 22 assigns the integer value 22 to the variable age.",
-  "Python has several built-in data types, including int for integers, float for decimal numbers, str for text, bool for True or False values, and list for ordered collections.",
-  "Python conditional statements use if, elif, and else to execute different blocks of code depending on whether conditions are true or false.",
-  "Python for loops iterate over items in a sequence or other iterable, while while loops repeat as long as a condition remains true.",
-  "Python functions are reusable blocks of code defined using the def keyword. Functions can accept parameters and return results using the return keyword.",
-  "Python lists are ordered, mutable collections that can store multiple values. List indexing starts at zero.",
-  "Python dictionaries store key-value pairs and allow values to be accessed using their keys.",
-  "Python exceptions can be handled using try and except blocks so that programs can respond to certain runtime errors.",
-  "JavaScript is a programming language used to build interactive websites and web applications.",
-  "React is a JavaScript library for building user interfaces using reusable components.",
-  "Next.js is a React framework that provides features such as file-based routing, server-side rendering, static generation, and API handling.",
-  "TypeScript is a programming language built on JavaScript that adds static type checking to help developers detect errors during development.",
-  "FastAPI is a Python web framework used to build APIs with automatic request validation and interactive API documentation.",
-  "Artificial intelligence, or AI, is the field of building computer systems that perform tasks such as understanding language, recognizing patterns, and generating content.",
-  "Machine learning is a branch of AI in which systems learn patterns from data to make predictions or perform tasks.",
-  "A large language model, or LLM, is an AI model trained on large amounts of text to understand and generate human language.",
-  "LLMs can answer questions, summarize text, generate code, explain concepts, and assist with language-related tasks.",
-  "Ollama is a tool that allows developers to download and run supported large language models locally.",
-  "Llama 3.2 is a family of language models developed by Meta and available in different sizes for tasks such as text generation and question answering.",
-  "Prompt engineering is the practice of designing instructions and context to guide a language model toward a useful response.",
-  "An AI chatbot is an application that accepts user messages and generates responses using predefined logic, an AI model, or a combination of both.",
-  "Retrieval-Augmented Generation, or RAG, is a technique that retrieves relevant information from an external knowledge source and provides it to a language model to help generate an answer.",
-  "RAG combines information retrieval with language generation. Instead of relying only on the language model's existing training, it supplies relevant retrieved context for the current question.",
-  "A typical RAG pipeline converts documents into embeddings, stores the embeddings in a vector index, embeds a user's question, retrieves similar documents, builds a context, and sends the question and context to an LLM.",
-  "RAG is useful when a chatbot needs to answer questions about private documents, company information, project documentation, or knowledge that may not be present in the model's training data.",
-  "An embedding is a numerical vector representation of text that captures aspects of its semantic meaning.",
-  "Semantic search finds information based on meaning rather than relying only on exact keyword matches.",
-  "A vector database stores and searches vector representations of data. It can help applications retrieve items that are semantically similar to a query.",
-  "FAISS stands for Facebook AI Similarity Search. It is a library for efficient similarity search and clustering of dense vectors.",
-  "In our chatbot project, Sentence Transformers converts documents and user questions into embedding vectors, and FAISS searches for similar document vectors.",
-  "Sentence Transformers is a Python library that creates sentence and text embeddings suitable for tasks such as semantic similarity and information retrieval.",
-  "The all-MiniLM-L6-v2 model is a Sentence Transformers model that creates 384-dimensional sentence embeddings.",
-  "Cosine similarity measures the similarity between two nonzero vectors by comparing the angle between them. It is commonly used to compare text embeddings.",
-  "Top-k retrieval means returning the k highest-ranked search results for a query.",
-  "A similarity threshold is a minimum score used to filter retrieval results. If the threshold is too high, relevant documents may be excluded.",
-  "The context in a RAG system is the relevant retrieved information included in the prompt sent to the language model.",
-  "A RAG prompt contains the user's question and retrieved context, along with instructions describing how the model should answer.",
-  "A RAG chatbot should avoid inventing facts when the retrieved context does not contain enough information to answer the question.",
-  "Chunking is the process of splitting long documents into smaller pieces so that relevant sections can be retrieved independently.",
-  "A vector index is a data structure used to search vectors efficiently. FAISS supports different index types with different speed, memory, and accuracy trade-offs.",
-  "In our project, documents.json stores the text documents, documents.index stores the FAISS vector index, faiss_text.py handles semantic retrieval, rag_context.py builds the context and prompt, llm_service.py calls Ollama, and app.py exposes the FastAPI endpoints.",
-  "A REST API allows applications to communicate over HTTP using endpoints and methods such as GET and POST.",
-  "CORS stands for Cross-Origin Resource Sharing. It is a browser security mechanism that controls whether a frontend origin can access resources on another origin.",
-  "An HTTP POST request is commonly used to send data to an API, for example sending a chatbot question as JSON.",
-  "The weather is a description of atmospheric conditions such as temperature, wind, humidity, and precipitation at a particular time and place."
+  {
+    "chunk_id": 0,
+    "document_id": 0,
+    "chunk_index": 0,
+    "text": "Python is a high-level, interpreted programming language known for its simple syntax and readability.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 1,
+    "document_id": 1,
+    "chunk_index": 0,
+    "text": "Python is commonly used for web development, automation, data analysis, machine learning, artificial intelligence, and scripting.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 2,
+    "document_id": 2,
+    "chunk_index": 0,
+    "text": "Python variables are names used to refer to values. For example, age = 22 assigns the integer value 22 to the variable age.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 3,
+    "document_id": 3,
+    "chunk_index": 0,
+    "text": "Python has several built-in data types, including int for integers, float for decimal numbers, str for text, bool for True or False values, and list for ordered collections.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 4,
+    "document_id": 4,
+    "chunk_index": 0,
+    "text": "Python conditional statements use if, elif, and else to execute different blocks of code depending on whether conditions are true or false.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 5,
+    "document_id": 5,
+    "chunk_index": 0,
+    "text": "Python for loops iterate over items in a sequence or other iterable, while while loops repeat as long as a condition remains true.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 6,
+    "document_id": 6,
+    "chunk_index": 0,
+    "text": "Python functions are reusable blocks of code defined using the def keyword. Functions can accept parameters and return results using the return keyword.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 7,
+    "document_id": 7,
+    "chunk_index": 0,
+    "text": "Python lists are ordered, mutable collections that can store multiple values. List indexing starts at zero.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 8,
+    "document_id": 8,
+    "chunk_index": 0,
+    "text": "Python dictionaries store key-value pairs and allow values to be accessed using their keys.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 9,
+    "document_id": 9,
+    "chunk_index": 0,
+    "text": "Python exceptions can be handled using try and except blocks so that programs can respond to certain runtime errors.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 10,
+    "document_id": 10,
+    "chunk_index": 0,
+    "text": "JavaScript is a programming language used to build interactive websites and web applications.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 11,
+    "document_id": 11,
+    "chunk_index": 0,
+    "text": "React is a JavaScript library for building user interfaces using reusable components.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 12,
+    "document_id": 12,
+    "chunk_index": 0,
+    "text": "Next.js is a React framework that provides features such as file-based routing, server-side rendering, static generation, and API handling.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 13,
+    "document_id": 13,
+    "chunk_index": 0,
+    "text": "TypeScript is a programming language built on JavaScript that adds static type checking to help developers detect errors during development.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 14,
+    "document_id": 14,
+    "chunk_index": 0,
+    "text": "FastAPI is a Python web framework used to build APIs with automatic request validation and interactive API documentation.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 15,
+    "document_id": 15,
+    "chunk_index": 0,
+    "text": "Artificial intelligence, or AI, is the field of building computer systems that perform tasks such as understanding language, recognizing patterns, and generating content.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 16,
+    "document_id": 16,
+    "chunk_index": 0,
+    "text": "Machine learning is a branch of AI in which systems learn patterns from data to make predictions or perform tasks.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 17,
+    "document_id": 17,
+    "chunk_index": 0,
+    "text": "A large language model, or LLM, is an AI model trained on large amounts of text to understand and generate human language.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 18,
+    "document_id": 18,
+    "chunk_index": 0,
+    "text": "LLMs can answer questions, summarize text, generate code, explain concepts, and assist with language-related tasks.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 19,
+    "document_id": 19,
+    "chunk_index": 0,
+    "text": "Ollama is a tool that allows developers to download and run supported large language models locally.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 20,
+    "document_id": 20,
+    "chunk_index": 0,
+    "text": "Llama 3.2 is a family of language models developed by Meta and available in different sizes for tasks such as text generation and question answering.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 21,
+    "document_id": 21,
+    "chunk_index": 0,
+    "text": "Prompt engineering is the practice of designing instructions and context to guide a language model toward a useful response.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 22,
+    "document_id": 22,
+    "chunk_index": 0,
+    "text": "An AI chatbot is an application that accepts user messages and generates responses using predefined logic, an AI model, or a combination of both.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 23,
+    "document_id": 23,
+    "chunk_index": 0,
+    "text": "Retrieval-Augmented Generation, or RAG, is a technique that retrieves relevant information from an external knowledge source and provides it to a language model to help generate an answer.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 24,
+    "document_id": 24,
+    "chunk_index": 0,
+    "text": "RAG combines information retrieval with language generation. Instead of relying only on the language model's existing training, it supplies relevant retrieved context for the current question.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 25,
+    "document_id": 25,
+    "chunk_index": 0,
+    "text": "A typical RAG pipeline converts documents into embeddings, stores the embeddings in a vector index, embeds a user's question, retrieves similar documents, builds a context, and sends the question and context to an LLM.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 26,
+    "document_id": 26,
+    "chunk_index": 0,
+    "text": "RAG is useful when a chatbot needs to answer questions about private documents, company information, project documentation, or knowledge that may not be present in the model's training data.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 27,
+    "document_id": 27,
+    "chunk_index": 0,
+    "text": "An embedding is a numerical vector representation of text that captures aspects of its semantic meaning.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 28,
+    "document_id": 28,
+    "chunk_index": 0,
+    "text": "Semantic search finds information based on meaning rather than relying only on exact keyword matches.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 29,
+    "document_id": 29,
+    "chunk_index": 0,
+    "text": "A vector database stores and searches vector representations of data. It can help applications retrieve items that are semantically similar to a query.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 30,
+    "document_id": 30,
+    "chunk_index": 0,
+    "text": "FAISS stands for Facebook AI Similarity Search. It is a library for efficient similarity search and clustering of dense vectors.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 31,
+    "document_id": 31,
+    "chunk_index": 0,
+    "text": "In our chatbot project, Sentence Transformers converts documents and user questions into embedding vectors, and FAISS searches for similar document vectors.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 32,
+    "document_id": 32,
+    "chunk_index": 0,
+    "text": "Sentence Transformers is a Python library that creates sentence and text embeddings suitable for tasks such as semantic similarity and information retrieval.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 33,
+    "document_id": 33,
+    "chunk_index": 0,
+    "text": "The all-MiniLM-L6-v2 model is a Sentence Transformers model that creates 384-dimensional sentence embeddings.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 34,
+    "document_id": 34,
+    "chunk_index": 0,
+    "text": "Cosine similarity measures the similarity between two nonzero vectors by comparing the angle between them. It is commonly used to compare text embeddings.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 35,
+    "document_id": 35,
+    "chunk_index": 0,
+    "text": "Top-k retrieval means returning the k highest-ranked search results for a query.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 36,
+    "document_id": 36,
+    "chunk_index": 0,
+    "text": "A similarity threshold is a minimum score used to filter retrieval results. If the threshold is too high, relevant documents may be excluded.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 37,
+    "document_id": 37,
+    "chunk_index": 0,
+    "text": "The context in a RAG system is the relevant retrieved information included in the prompt sent to the language model.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 38,
+    "document_id": 38,
+    "chunk_index": 0,
+    "text": "A RAG prompt contains the user's question and retrieved context, along with instructions describing how the model should answer.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 39,
+    "document_id": 39,
+    "chunk_index": 0,
+    "text": "A RAG chatbot should avoid inventing facts when the retrieved context does not contain enough information to answer the question.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 40,
+    "document_id": 40,
+    "chunk_index": 0,
+    "text": "Chunking is the process of splitting long documents into smaller pieces so that relevant sections can be retrieved independently.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 41,
+    "document_id": 41,
+    "chunk_index": 0,
+    "text": "A vector index is a data structure used to search vectors efficiently. FAISS supports different index types with different speed, memory, and accuracy trade-offs.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 42,
+    "document_id": 42,
+    "chunk_index": 0,
+    "text": "Project architecture: documents.json stores the source documents. documents.index stores the FAISS vector index. faiss_text.py performs semantic retrieval using FAISS. rag_context.py retrieves relevant chunks and builds the context and prompt. llm_service.py communicates with Ollama to generate",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 43,
+    "document_id": 42,
+    "chunk_index": 1,
+    "text": "communicates with Ollama to generate answers. app.py exposes the chatbot through FastAPI endpoints.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 44,
+    "document_id": 43,
+    "chunk_index": 0,
+    "text": "A REST API allows applications to communicate over HTTP using endpoints and methods such as GET and POST.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 45,
+    "document_id": 44,
+    "chunk_index": 0,
+    "text": "CORS stands for Cross-Origin Resource Sharing. It is a browser security mechanism that controls whether a frontend origin can access resources on another origin.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 46,
+    "document_id": 45,
+    "chunk_index": 0,
+    "text": "An HTTP POST request is commonly used to send data to an API, for example sending a chatbot question as JSON.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 47,
+    "document_id": 46,
+    "chunk_index": 0,
+    "text": "The weather is a description of atmospheric conditions such as temperature, wind, humidity, and precipitation at a particular time and place.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 48,
+    "document_id": 47,
+    "chunk_index": 0,
+    "text": "The primary external knowledge source of our RAG chatbot is documents.json, which contains the predefined text documents used to answer user questions.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 49,
+    "document_id": 48,
+    "chunk_index": 0,
+    "text": "Our chatbot loads documents from documents.json, splits them into smaller chunks, converts the chunks into numerical embeddings using the all-MiniLM-L6-v2 Sentence Transformers model, and stores the vectors in a FAISS index.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 50,
+    "document_id": 49,
+    "chunk_index": 0,
+    "text": "When a user asks a question, the chatbot converts the question into an embedding and uses FAISS similarity search to retrieve relevant chunks from its knowledge base.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 51,
+    "document_id": 50,
+    "chunk_index": 0,
+    "text": "After retrieving relevant chunks, the chatbot builds a context containing the retrieved information and sends the context along with the user's question to the locally running Llama 3.2 model through Ollama.",
+    "source": "documents.json"
+  },
+  {
+    "chunk_id": 52,
+    "document_id": 51,
+    "chunk_index": 0,
+    "text": "Our RAG chatbot uses two sources of information: the pretrained knowledge already learned by the Llama 3.2 language model and the external project knowledge retrieved from documents.json using embeddings and FAISS. The retrieved context is used to ground answers in the project's knowledge base.",
+    "source": "documents.json"
+  }
 ]

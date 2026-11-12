@@ -1,14 +1,20 @@
 
 import json
+from pathlib import Path
+
 import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from chunking import chunk_text
 
+BASE_DIR = Path(__file__).resolve().parent
+DOCUMENTS_PATH = BASE_DIR / "documents.json"
+CHUNKS_PATH = BASE_DIR / "chunks.json"
+INDEX_PATH = BASE_DIR / "documents.index"
 
 # 1. Load the original knowledge-base documents.
-with open("documents.json", "r", encoding="utf-8") as file:
+with open(DOCUMENTS_PATH, "r", encoding="utf-8") as file:
     documents = json.load(file)
 
 
@@ -20,10 +26,10 @@ if not all(isinstance(doc, str) and doc.strip() for doc in documents):
     raise ValueError("Every document must be a non-empty string.")
 
 
-# 3. Split each document into smaller, overlapping chunks.
+# 3. Create chunks and preserve their metadata.
 chunks = []
 
-for document_number, document in enumerate(documents, start=1):
+for document_id, document in enumerate(documents):
     document_chunks = chunk_text(
         document,
         chunk_size=300,
@@ -32,63 +38,76 @@ for document_number, document in enumerate(documents, start=1):
 
     if not document_chunks:
         raise ValueError(
-            f"Document {document_number} produced no chunks."
+            f"Document {document_id} produced no chunks."
         )
 
-    chunks.extend(document_chunks)
+    for chunk_index, chunk in enumerate(document_chunks):
+        chunks.append({
+            "chunk_id": len(chunks),
+            "document_id": document_id,
+            "chunk_index": chunk_index,
+            "text": chunk,
+            "source": "documents.json"
+        })
 
 
-# 4. Make sure we have chunks to index.
+# 4. Validate that chunks exist.
 if not chunks:
     raise ValueError("No chunks were generated.")
 
 
-# 5. Load the same embedding model used by semantic search.
+# 5. Extract text for embedding.
+# Metadata is not embedded; only the actual text is.
+chunk_texts = [chunk["text"] for chunk in chunks]
+
+
+# 6. Load the embedding model.
 model = SentenceTransformer(
     "all-MiniLM-L6-v2",
     device="cpu"
 )
 
 
-# 6. Generate one embedding for every chunk.
+# 7. Generate normalized embeddings.
 embeddings = model.encode(
-    chunks,
+    chunk_texts,
     normalize_embeddings=True,
     convert_to_numpy=True,
     show_progress_bar=True
 )
 
-# FAISS expects a compatible numeric array.
 embeddings = np.ascontiguousarray(
     embeddings,
     dtype=np.float32
 )
 
 
-# 7. Create the FAISS index.
+# 8. Create and populate the FAISS index.
 dimension = embeddings.shape[1]
 index = faiss.IndexFlatIP(dimension)
-
-
-# 8. Add all chunk embeddings to the index.
 index.add(embeddings)
 
 
-# 9. Save the index and its matching chunk texts.
-faiss.write_index(index, "documents.index")
+# 9. Save the index and matching metadata records.
+faiss.write_index(index, str(INDEX_PATH))
 
-with open("chunks.json", "w", encoding="utf-8") as file:
+with open(CHUNKS_PATH, "w", encoding="utf-8") as file:
     json.dump(chunks, file, ensure_ascii=False, indent=2)
 
 
-# 10. Confirm that everything matches.
-with open("chunks.json", "r", encoding="utf-8") as file:
+# 10. Validate the saved files.
+with open(CHUNKS_PATH, "r", encoding="utf-8") as file:
     saved_chunks = json.load(file)
 
-saved_index = faiss.read_index("documents.index")
+saved_index = faiss.read_index(str(INDEX_PATH))
 
 assert saved_index.ntotal == len(saved_chunks)
 assert saved_index.ntotal == len(chunks)
+
+assert all(
+    record["chunk_id"] == position
+    for position, record in enumerate(saved_chunks)
+)
 
 print("\nChunk indexing completed successfully!")
 print(f"Original documents: {len(documents)}")

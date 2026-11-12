@@ -1,6 +1,6 @@
 [
   "Python is a high-level, interpreted programming language known for its simple syntax and readability.",
-  "Python is commonly used for web development, automation data analysis, machine learning, artificial intelligence and scripting.",
+  "Python is commonly used for web development, automation, data analysis, machine learning, artificial intelligence, and scripting.",
   "Python variables are names used to refer to values. For example, age = 22 assigns the integer value 22 to the variable age.",
   "Python has several built-in data types, including int for integers, float for decimal numbers, str for text, bool for True or False values, and list for ordered collections.",
   "Python conditional statements use if, elif, and else to execute different blocks of code depending on whether conditions are true or false.",
@@ -41,9 +41,14 @@
   "A RAG chatbot should avoid inventing facts when the retrieved context does not contain enough information to answer the question.",
   "Chunking is the process of splitting long documents into smaller pieces so that relevant sections can be retrieved independently.",
   "A vector index is a data structure used to search vectors efficiently. FAISS supports different index types with different speed, memory, and accuracy trade-offs.",
-  "In our project, documents.json stores the text documents, documents.index stores the FAISS vector index, faiss_text.py handles semantic retrieval, rag_context.py builds the context and prompt, llm_service.py calls Ollama, and app.py exposes the FastAPI endpoints.",
+  "Project architecture: documents.json stores the source documents. documents.index stores the FAISS vector index. faiss_text.py performs semantic retrieval using FAISS. rag_context.py retrieves relevant chunks and builds the context and prompt. llm_service.py communicates with Ollama to generate answers. app.py exposes the chatbot through FastAPI endpoints.",
   "A REST API allows applications to communicate over HTTP using endpoints and methods such as GET and POST.",
   "CORS stands for Cross-Origin Resource Sharing. It is a browser security mechanism that controls whether a frontend origin can access resources on another origin.",
   "An HTTP POST request is commonly used to send data to an API, for example sending a chatbot question as JSON.",
-  "The weather is a description of atmospheric conditions such as temperature, wind, humidity, and precipitation at a particular time and place."
+  "The weather is a description of atmospheric conditions such as temperature, wind, humidity, and precipitation at a particular time and place.",
+  "The primary external knowledge source of our RAG chatbot is documents.json, which contains the predefined text documents used to answer user questions.",
+  "Our chatbot loads documents from documents.json, splits them into smaller chunks, converts the chunks into numerical embeddings using the all-MiniLM-L6-v2 Sentence Transformers model, and stores the vectors in a FAISS index.",
+  "When a user asks a question, the chatbot converts the question into an embedding and uses FAISS similarity search to retrieve relevant chunks from its knowledge base.",
+  "After retrieving relevant chunks, the chatbot builds a context containing the retrieved information and sends the context along with the user's question to the locally running Llama 3.2 model through Ollama.",
+  "Our RAG chatbot uses two sources of information: the pretrained knowledge already learned by the Llama 3.2 language model and the external project knowledge retrieved from documents.json using embeddings and FAISS. The retrieved context is used to ground answers in the project's knowledge base."
 ]
