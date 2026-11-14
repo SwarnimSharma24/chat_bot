@@ -7,20 +7,16 @@ import time
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
+from redis_semaphore import (
+    inference_semaphore,
+    LeaseHeartbeat,
+    SemaphoreAcquireTimeout,
+    SemaphoreLeaseLost,
+    RedisSemaphoreError,
+)
+
 
 logger = logging.getLogger("llm-service")
-
-
-# Maximum simultaneous LLM generations
-MAX_CONCURRENT_GENERATIONS = 1
-
-# Maximum time waiting for an inference slot
-INFERENCE_WAIT_TIMEOUT = 30
-
-# Shared semaphore for this Python process
-_inference_semaphore = threading.BoundedSemaphore(
-    MAX_CONCURRENT_GENERATIONS
-)
 
 
 class InferenceBusyError(Exception):
@@ -32,89 +28,127 @@ def generate_answer(prompt, model="llama3.2:1b"):
 
     thread_name = threading.current_thread().name
 
-    # 1. Measure semaphore waiting time
+    # 1. Acquire a distributed Redis inference slot
     wait_start = time.perf_counter()
 
     logger.info(
-        "Waiting for inference slot | thread=%s",
-        thread_name
+        "Waiting for distributed inference slot | thread=%s",
+        thread_name,
     )
 
-    acquired = _inference_semaphore.acquire(
-        timeout=INFERENCE_WAIT_TIMEOUT
-    )
+    try:
+        token = inference_semaphore.acquire()
 
-    if not acquired:
+    except (SemaphoreAcquireTimeout, RedisSemaphoreError) as error:
+
         wait_duration = round(
             time.perf_counter() - wait_start, 3
         )
 
         logger.warning(
-            "Inference slot timeout | thread=%s | wait_duration=%ss",
+            "Distributed inference slot unavailable | "
+            "thread=%s | wait_duration=%ss",
             thread_name,
-            wait_duration
+            wait_duration,
         )
 
         raise InferenceBusyError(
-            "LLM is busy. Please try again later."
-        )
+            "Inference capacity is temporarily unavailable."
+        ) from error
 
     wait_duration = round(
         time.perf_counter() - wait_start, 3
     )
 
     logger.info(
-        "Inference slot acquired | thread=%s | wait_duration=%ss",
+        "Distributed inference slot acquired | "
+        "thread=%s | wait_duration=%ss",
         thread_name,
-        wait_duration
+        wait_duration,
     )
 
     # 2. Measure actual Ollama generation time
     generation_start = time.perf_counter()
 
     try:
-        url = "http://localhost:11434/api/chat"
 
-        payload = {
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-            "stream": False,
-            "options": {"temperature": 0},
-        }
+        # Automatically renew the Redis lease during inference.
+        with LeaseHeartbeat(
+            inference_semaphore,
+            token,
+        ) as heartbeat:
 
-        request = Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
+            url = "http://localhost:11434/api/chat"
 
-        try:
-            with urlopen(request, timeout=180) as response:
-                result = json.loads(response.read().decode("utf-8"))
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "user", "content": prompt}
+                ],
+                "stream": False,
+                "options": {"temperature": 0},
+            }
+
+            request = Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+
+            try:
+                with urlopen(request, timeout=180) as response:
+                    result = json.loads(
+                        response.read().decode("utf-8")
+                    )
+
+            except HTTPError as error:
+                raise RuntimeError(
+                    f"Ollama HTTP error: {error.code}"
+                ) from error
+
+            except URLError as error:
+                raise RuntimeError(
+                    "Could not connect to Ollama. "
+                    "Make sure Ollama is running."
+                ) from error
+
+            # Never return an answer if the lease was lost.
+            heartbeat.raise_if_lost()
 
             return result["message"]["content"]
 
-        except HTTPError as error:
-            raise RuntimeError(
-                f"Ollama HTTP error: {error.code}"
-            ) from error
+    except (SemaphoreLeaseLost, RedisSemaphoreError) as error:
 
-        except URLError as error:
-            raise RuntimeError(
-                "Could not connect to Ollama. Make sure Ollama is running."
-            ) from error
+        logger.error(
+            "Inference lease lost | thread=%s | error=%s",
+            thread_name,
+            error,
+        )
+
+        raise InferenceBusyError(
+            "Inference capacity was lost. Please retry."
+        ) from error
 
     finally:
-        # 3. Always release the semaphore
+
+        # 3. Always attempt to release the distributed slot.
         generation_duration = round(
             time.perf_counter() - generation_start, 3
         )
 
         logger.info(
-            "Releasing inference slot | thread=%s | generation_duration=%ss",
+            "Releasing distributed inference slot | "
+            "thread=%s | generation_duration=%ss",
             thread_name,
-            generation_duration
+            generation_duration,
         )
 
-        _inference_semaphore.release()
+        try:
+            inference_semaphore.release(token)
+
+        except RedisSemaphoreError:
+            logger.exception(
+                "Failed to release Redis inference slot | token=%s",
+                token,
+            )
