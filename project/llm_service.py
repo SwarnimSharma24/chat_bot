@@ -23,6 +23,9 @@ class InferenceBusyError(Exception):
     """Raised when LLM inference capacity is unavailable."""
     pass
 
+class OllamaUnavailableError(Exception):
+    """Raised when the Ollama service is unavailable."""
+    pass
 
 def generate_answer(prompt, model="llama3.2:1b"):
 
@@ -108,8 +111,8 @@ def generate_answer(prompt, model="llama3.2:1b"):
                 ) from error
 
             except URLError as error:
-                raise RuntimeError(
-                    "Could not connect to Ollama. "
+                raise OllamaUnavailableError(
+                    "Ollama service is unavailable. "
                     "Make sure Ollama is running."
                 ) from error
 

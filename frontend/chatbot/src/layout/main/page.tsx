@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ArrowUp } from "lucide-react";
 import { chatApi } from "@/services";
+import axios from "axios";
 
 interface SimpleMessage {
   id: string;
@@ -16,31 +17,37 @@ export default function MainPage() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  console.log(messages, "messages>>>>")
+  console.log(messages, "messages>>>>");
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-
   const handleSend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+
     const query = input.trim();
+
     if (!query || isLoading) return;
 
     setInput("");
+
     const userMsg: SimpleMessage = {
       id: `u-${Date.now()}`,
       role: "user",
       content: query,
     };
+
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
     try {
       const response = await chatApi(query);
-      console.log(response, "response>>>>")
+
+      console.log(response, "response>>>>");
+
       const answer = response?.answer || "No response received.";
+
       setMessages((prev) => [
         ...prev,
         {
@@ -49,13 +56,53 @@ export default function MainPage() {
           content: answer,
         },
       ]);
-    } catch {
+    } catch (error: any) {
+      console.error("Chat API Error:", error);
+
+      let errorMessage = "Something went wrong while processing your request.";
+
+      if (error.response) {
+        // Backend responded with an HTTP error
+        const status = error.response.status;
+        const detail = error.response.data?.detail;
+
+        if (status === 503) {
+          const backendMessage =
+            typeof detail === "string" ? detail : detail?.message;
+
+          if (backendMessage?.toLowerCase().includes("ollama")) {
+            errorMessage =
+              "AI service is temporarily unavailable. Please try again shortly.";
+          } else {
+            errorMessage = "Server is busy. Please try again shortly.";
+          }
+        } else if (status === 401) {
+          errorMessage = "Your session has expired. Please log in again.";
+        } else if (status === 422) {
+          errorMessage = "Invalid request. Please check your message.";
+        } else if (status >= 500) {
+          errorMessage =
+            "Something went wrong on the server. Please try again later.";
+        } else {
+          errorMessage =
+            typeof detail === "string"
+              ? detail
+              : "Unable to process your request.";
+        }
+      } else if (error.request) {
+        // Request was sent, but no response was received
+        errorMessage = "Failed to connect to the backend server.";
+      } else {
+        // Error occurred while preparing the request
+        errorMessage = "Unable to send your message. Please try again.";
+      }
+
       setMessages((prev) => [
         ...prev,
         {
           id: `err-${Date.now()}`,
           role: "assistant",
-          content: "Failed to connect to the backend server.",
+          content: errorMessage,
         },
       ]);
     } finally {
