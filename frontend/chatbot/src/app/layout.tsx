@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Chatbot",
-  description: "AI Chatbot Application",
-};
+// export const metadata: Metadata = {
+//   title: "Chatbot",
+//   description: "AI Chatbot Application",
+// };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

@@ -62,6 +62,11 @@ class ChatSource(BaseModel):
     source: str
     score: float
 
+    semantic_score: float | None = None
+    keyword_score: float | None = None
+    rrf_score: float | None = None
+    rerank_score: float | None = None
+
 
 class ChatResponse(BaseModel):
     question: str
@@ -83,7 +88,6 @@ def check_redis():
         return {"status": "down"}
 
 
-
 def check_ollama():
 
     REQUIRED_MODEL = "llama3.2:1b"
@@ -99,10 +103,7 @@ def check_ollama():
 
             data = json.loads(response.read().decode("utf-8"))
 
-            available_models = [
-                model["name"]
-                for model in data.get("models", [])
-            ]
+            available_models = [model["name"] for model in data.get("models", [])]
 
             if REQUIRED_MODEL not in available_models:
                 logger.error(

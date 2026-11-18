@@ -263,6 +263,7 @@ def hybrid_search(
     min_semantic_score=0.0,
     semantic_weight=1.0,
     keyword_weight=1.0,
+    return_all_candidates=False,
 ):
 
     if not isinstance(query, str) or not query.strip():
@@ -277,7 +278,9 @@ def hybrid_search(
     if type(rrf_k) is not int or rrf_k < 1:
         raise ValueError("rrf_k must be a positive integer.")
 
-    # Validate semantic weight.
+    if type(return_all_candidates) is not bool:
+        raise ValueError("return_all_candidates must be a boolean.")
+
     if (
         isinstance(semantic_weight, bool)
         or not isinstance(semantic_weight, (int, float))
@@ -286,7 +289,6 @@ def hybrid_search(
     ):
         raise ValueError("semantic_weight must be a finite non-negative number.")
 
-    # Validate keyword weight.
     if (
         isinstance(keyword_weight, bool)
         or not isinstance(keyword_weight, (int, float))
@@ -298,7 +300,7 @@ def hybrid_search(
     if semantic_weight == 0 and keyword_weight == 0:
         raise ValueError("At least one retrieval weight must be greater than zero.")
 
-    # Retrieve candidates from both search methods.
+    # Step 1: Retrieve semantic candidates.
     semantic_results = semantic_search(
         query,
         model,
@@ -308,16 +310,16 @@ def hybrid_search(
         min_score=min_semantic_score,
     )
 
+    # Step 2: Retrieve keyword candidates.
     keyword_results = keyword_search(
         query,
         documents,
         top_k=candidate_k,
     )
 
-    # Store each chunk once and accumulate its RRF score.
+    # Step 3: Merge candidates using weighted RRF.
     combined = {}
 
-    # Add semantic retrieval contributions.
     for rank, result in enumerate(semantic_results, start=1):
 
         chunk_id = result["chunk_id"]
@@ -331,7 +333,6 @@ def hybrid_search(
             "keyword_score": None,
         }
 
-    # Add keyword retrieval contributions.
     for rank, result in enumerate(keyword_results, start=1):
 
         chunk_id = result["chunk_id"]
@@ -352,15 +353,22 @@ def hybrid_search(
             combined[chunk_id]["keyword_rank"] = rank
             combined[chunk_id]["keyword_score"] = result["score"]
 
-        combined[chunk_id]["rrf_score"] += keyword_weight / (rrf_k + rank)
+        combined[chunk_id]["rrf_score"] += (
+            keyword_weight / (rrf_k + rank)
+        )
 
-    # Highest combined RRF score first.
+    # Step 4: Sort by combined RRF score.
     results = sorted(
         combined.values(),
         key=lambda item: item["rrf_score"],
         reverse=True,
     )
 
+    # Step 5: Return all candidates when reranking is requested.
+    if return_all_candidates:
+        return results
+
+    # Preserve existing behavior for all other callers.
     return results[:top_k]
 
 
